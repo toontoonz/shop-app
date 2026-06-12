@@ -13,7 +13,7 @@ type Props = {
   sellerName: string;
 };
 
-export function ProductCard({ id, name, priceSatang, stock, imageUrl, sellerName }: Props) {
+export function ProductCard({ id, name, priceSatang, stock, imageUrl }: Props) {
   const outOfStock = stock === 0;
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);

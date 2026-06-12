@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { SearchBox } from "./SearchBox";
-import { LogoutButton } from "@/modules/seller-account-catalog/ui/LogoutButton";
 
 type Props = {
   sellerName: string;
+  logoutButton: React.ReactNode;
 };
 
-export function StorefrontHeader({ sellerName }: Props) {
+export function StorefrontHeader({ sellerName, logoutButton }: Props) {
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
@@ -49,7 +49,7 @@ export function StorefrontHeader({ sellerName }: Props) {
               {sellerName.charAt(0)}
             </div>
             <span className="hidden text-sm text-slate-600 sm:inline">{sellerName}</span>
-            <LogoutButton />
+            {logoutButton}
           </div>
         </div>
       </div>
