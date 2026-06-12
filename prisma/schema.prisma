@@ -1,0 +1,176 @@
+// Prisma schema for shop-app — see .aidlc/specs/ecommerce-platform/design/data-model.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────────────────────────
+// Enums
+// ───────────────────────────────────────────────
+
+enum OrderStatus {
+  ORDERED
+  PAID
+  PACKING
+  SHIPPED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  COD
+  E_WALLET
+  CREDIT_CARD
+}
+
+// ───────────────────────────────────────────────
+// Module: seller-account-catalog
+// ───────────────────────────────────────────────
+
+model Seller {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  products Product[]
+  orders   Order[]
+  sessions Session[]
+  accounts Account[]
+
+  @@index([active])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  sellerId    String
+  seller      Seller   @relation(fields: [sellerId], references: [id])
+  name        String
+  description String?
+  priceSatang Int
+  stock       Int      @default(0)
+  imageUrl    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([sellerId])
+  @@index([active])
+  @@index([sellerId, active])
+}
+
+model FailedLogin {
+  id          String   @id @default(cuid())
+  username    String
+  attemptedAt DateTime @default(now())
+
+  @@index([username, attemptedAt])
+}
+
+// ───────────────────────────────────────────────
+// Module: storefront-checkout
+// ───────────────────────────────────────────────
+
+model Order {
+  id            String        @id @default(cuid())
+  sellerId      String
+  seller        Seller        @relation(fields: [sellerId], references: [id])
+  buyerName     String
+  buyerPhone    String
+  buyerEmail    String?
+  paymentMethod PaymentMethod
+  status        OrderStatus   @default(ORDERED)
+  totalSatang   Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items        OrderItem[]
+  statusEvents OrderStatusEvent[]
+
+  @@index([sellerId])
+  @@index([sellerId, status])
+  @@index([sellerId, createdAt])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id                 String  @id @default(cuid())
+  orderId            String
+  order              Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId          String
+  product            Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productNameAtOrder String
+  unitPriceSatang    Int
+  quantity           Int
+
+  @@index([productId])
+  @@index([orderId])
+}
+
+// ───────────────────────────────────────────────
+// Module: order-fulfillment
+// ───────────────────────────────────────────────
+
+model OrderStatusEvent {
+  id            String       @id @default(cuid())
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus    OrderStatus?
+  toStatus      OrderStatus
+  actorSellerId String
+  occurredAt    DateTime     @default(now())
+
+  @@index([orderId, occurredAt])
+}
+
+// ───────────────────────────────────────────────
+// Auth.js v5 standard adapter models
+// ───────────────────────────────────────────────
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user Seller @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  sessionToken String   @id
+  userId       String
+  expires      DateTime
+
+  user Seller @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@id([identifier, token])
+}

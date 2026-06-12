@@ -1,0 +1,133 @@
+version: "2.2"
+feature: "ecommerce-platform"
+language: "th"
+platform: "kiro"
+created: "2026-06-10T00:00:00Z"
+updated: "2026-06-10T00:00:00Z"
+state:
+  status: "active"
+  sharedPhases:
+    - context
+    - requirements
+    - decomposition
+    - design
+    - tasks
+  mode: "comprehensive"
+  foundationSkipped: false
+  implementationMode: "standard"
+  quickPath: false
+artifacts:
+  context:
+    status: "approved"
+    timestamp: "2026-06-10T00:00:00Z"
+    files:
+      - context.md
+  requirements:
+    status: "approved"
+    timestamp: "2026-06-10T00:00:00Z"
+    files:
+      - requirements.md
+      - personas.md
+  decomposition:
+    status: "approved"
+    timestamp: "2026-06-10T00:00:00Z"
+    files:
+      - units.md
+  design:
+    status: "approved"
+    timestamp: "2026-06-10T00:00:00Z"
+    files:
+      - design.md
+      - design/components.md
+      - design/data-model.md
+      - design/api-spec.md
+      - design/integration.md
+      - design/implementation.md
+      - design/correctness.md
+  tasks:
+    status: "approved"
+    timestamp: "2026-06-10T00:00:00Z"
+    files:
+      - tasks.md
+implementation:
+  totalTasks: 33
+  completedTasks: 33
+  currentTask: "5.4"
+  currentWave: null
+context-summary:
+  type: "Greenfield"
+  stack: "Pending D3 decisions"
+  architecture: "Pending D2/D3 decisions"
+  feature: "Multi-seller e-commerce web app: anonymous buyer storefront with mock payment plus authenticated seller backend with order management and sales analytics."
+  impact: "New standalone"
+  complexity: "Medium"
+  teamSize: "solo"
+  recommendations:
+    personas: true
+    units: true
+    nfr: false
+decisions:
+  requirements:
+    SellerModel: "Multi-seller marketplace"
+    SellerOnboarding: "Admin invite-only"
+    BuyerAccount: "Anonymous checkout only"
+    PaymentMethods: "Multiple mock methods (Bank Transfer, COD, e-Wallet, Credit Card)"
+    StatusTransitionTrigger: "Manual by seller"
+    StatusDirection: "Forward + Cancel (cancelled is terminal)"
+    AnalyticsCharts: "Standard (sales chart, orders-by-status, top-seller, top-products)"
+    AnalyticsTimeRange: "Preset ranges (Today/7d/30d/This month/This year)"
+    TopSellerMetric: "Total revenue (sum of order totals where status >= paid)"
+    Personas: "Yes"
+    OutOfScope: "real payment, notifications, shipping integration, reviews, advanced inventory, promotions, refunds, buyer accounts, self-signup"
+    Localization: "Thai only"
+    Timeline: "Standard MVP (1-2 months)"
+    TeamSize: "Solo (1 developer)"
+  decomposition:
+    ArchitecturePattern: "Modular Monolith"
+    DecompositionStrategy: "Domain-Driven"
+    UnitBreakdown: "4 units (seller-account-catalog, storefront-checkout, order-fulfillment, sales-analytics)"
+    CommunicationPattern: "Direct method calls via service interfaces"
+    DataOwnership: "Single shared DB, ownership by table"
+    SharedKernel: "No formal shared kernel (owner-based imports)"
+    DevelopmentSequence: "Sequential dependency-first"
+    FrontendDecomposition: "Yes (full-stack vertical slice per unit)"
+  design:
+    TechStack: "Next.js 14+ App Router full-stack"
+    Language: "TypeScript (strict)"
+    Database: "PostgreSQL (Neon in prod, Docker locally)"
+    ORM: "Prisma"
+    Auth: "Auth.js v5 Credentials + database session + bcrypt"
+    Validation: "Zod"
+    UI: "Tailwind CSS + shadcn/ui + Noto Sans Thai"
+    DataFetching: "TanStack Query v5 + Next.js Server Components"
+    Forms: "React Hook Form + Zod resolver"
+    Charts: "Recharts"
+    Testing: "Vitest (unit/integration) + Playwright (selective E2E)"
+    PBT: "fast-check (4 properties: stock, status FSM, revenue, cart total)"
+    RepoStructure: "Single repo, src/modules/{4-units}"
+    Hosting: "Vercel + Neon"
+    CICD: "GitHub Actions + Vercel auto-deploy"
+  tasks:
+    BreakdownStrategy: "Feature-by-feature aligned with units"
+    ImplementationApproach: "Hybrid (TDD for PBT + state machine, test-after elsewhere)"
+    TestPyramid: "Standard (Unit > Integration > PBT > selective E2E)"
+    TaskGranularity: "1-2 days per task"
+    Parallelism: "Strictly sequential"
+    Estimates: "T-shirt (S/M/L)"
+    E2EInclusion: "4 critical flows"
+    InfraTasks: "Phase 0 setup + Phase 5 deploy"
+    PBTTasks: "One task per property (4 PBT tasks)"
+    MigrationTasks: "One explicit migration task in Phase 0"
+    APIDocs: "None (design/api-spec.md is source of truth)"
+steering:
+  updatedBy:
+    product:
+      - context
+      - requirements
+    tech:
+      - context
+      - design
+    structure:
+      - context
+      - design
+units: []
