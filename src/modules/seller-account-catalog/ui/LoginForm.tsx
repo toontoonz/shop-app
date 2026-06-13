@@ -32,7 +32,7 @@ export function LoginForm() {
     });
 
     if (!result?.ok) {
-      if (result?.error === "THROTTLED" || result?.code === "THROTTLED") {
+      if (result?.code === "throttled") {
         setError("พยายามเข้าสู่ระบบบ่อยเกินไป กรุณาลองใหม่ภายหลัง");
       } else {
         setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
