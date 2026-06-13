@@ -1,7 +1,10 @@
 // Prisma schema for shop-app — see .aidlc/specs/ecommerce-platform/design/data-model.md
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // `native` covers local dev (Windows/macOS); the rhel target is required
+  // for Vercel serverless (Linux runtime).
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
