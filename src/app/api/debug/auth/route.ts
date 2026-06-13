@@ -10,6 +10,7 @@
  * Remove this file after the production login issue is resolved.
  */
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -95,6 +96,64 @@ export async function POST(req: NextRequest) {
         action,
         deleted: result.count,
         username: username ?? "(all)",
+      });
+    }
+
+    if (action === "reset-password") {
+      // Resets a seller's password to a fresh bcryptjs hash.
+      // Use ?username=<u>&password=<p> (defaults to "demo1234").
+      if (!username) {
+        return NextResponse.json(
+          { ok: false, error: "username required" },
+          { status: 400 },
+        );
+      }
+      const newPassword = req.nextUrl.searchParams.get("password") ?? "demo1234";
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+      const updated = await db.seller.update({
+        where: { username },
+        data: { passwordHash, active: true },
+        select: { id: true, username: true, displayName: true, active: true },
+      });
+      return NextResponse.json({
+        ok: true,
+        action,
+        seller: updated,
+        passwordHashPrefix: passwordHash.slice(0, 7),
+        passwordSet: newPassword,
+      });
+    }
+
+    if (action === "verify-password") {
+      // Verifies a candidate password against the stored hash for diagnostics.
+      // Use ?username=<u>&password=<p>
+      if (!username) {
+        return NextResponse.json(
+          { ok: false, error: "username required" },
+          { status: 400 },
+        );
+      }
+      const candidate = req.nextUrl.searchParams.get("password");
+      if (!candidate) {
+        return NextResponse.json(
+          { ok: false, error: "password required" },
+          { status: 400 },
+        );
+      }
+      const seller = await db.seller.findFirst({ where: { username } });
+      if (!seller) {
+        return NextResponse.json(
+          { ok: false, error: "seller not found" },
+          { status: 404 },
+        );
+      }
+      const match = await bcrypt.compare(candidate, seller.passwordHash);
+      return NextResponse.json({
+        ok: true,
+        action,
+        username,
+        match,
+        passwordHashPrefix: seller.passwordHash.slice(0, 7),
       });
     }
 
